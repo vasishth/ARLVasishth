@@ -1,0 +1,1246 @@
+---
+title: "Additional material (Annual Review of Linguistics article)"
+author: "Shravan Vasishth"
+date: "3/17/2022"
+output: html_document
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+library(lme4)
+library(MASS)
+library(ggplot2)
+library(ggridges)
+library(gridExtra)
+library(bayesplot)
+library(brms)
+```
+
+# Introduction
+
+This is the code to accompany the paper Some right ways to analyze (psycho)linguistic data. The paper is available from: https://osf.io/5wzyg/
+
+I assume that the user has at least glanced at the paper before working through this document.
+
+# Function definitions 
+
+## t-test summary
+
+```{r}
+## ----summaryttestfunction---------------------------------------------------------------
+## define function to summarize t-test results:
+summary_ttest <- function(res, paired = TRUE, units = "ms") {
+  obs_t <- round(res$statistic, 2)
+  dfs <- round(res$parameter)
+  pval <- round(res$p.value, 3)
+  ci <- round(res$conf.int, 2)
+  est <- round(res$estimate, 2)
+  if (paired == TRUE) {
+    list(dfs,obs_t,pval,est,ci[1],ci[2])
+  } else {
+    list(dfs,obs_t,pval,est[1],est[2],ci[1],ci[2])
+    }
+}
+```
+
+## Compute MinF'
+
+
+```{r}
+ minf <- function(f1,f2,n1,n2){
+ fprime <- (f1*f2)/(f1+f2)
+ n <- round(((f1+f2)*(f1+f2))/(((f1*f1)/n2)+((f2*f2)/n1)))
+ return(paste("minF(",n,")=",round(fprime,digits=2),", crit=",round(qf(.95,1,n)),sep=""))
+  }
+## ## usage:
+## minf(f1=6.92,f2=4.62,n1=36,n2=14)
+## pf(2.77,df1=1,df2=33,lower.tail=FALSE)
+
+## ----runminf,echo=TRUE,eval=FALSE-----------------------------------------------------------------
+## minf(f1=12.1,f2=4.14,n1=36,n2=14)
+## pf(3.08,df1=1,df2=24,lower.tail=FALSE)
+```
+
+## Generate fake lognormal data
+
+```{r}
+## ----genfakelnorm-----------------------------------------------------------------------
+# assumes that no. of subjects and no. of items is divisible by 2.
+gen_fake_lnorm <- function(nitem = 16,
+                           nsubj = 42,
+                           beta = c(6, 0.12),
+                           ranefsd = c(0.32, 0.22, 0.04, 0.09),
+                           corr = c(.6, .6),
+                           sigma_e = 0.31) {
+  ## prepare data frame for two condition latin square:
+  g1 <- data.frame(
+    item = 1:nitem,
+    condition = rep(
+      letters[1:2],
+      nitem / 2
+    )
+  )
+  g2 <- data.frame(
+    item = 1:nitem,
+    condition = rep(
+      letters[2:1],
+      nitem / 2
+    )
+  )
+
+  ## assemble data frame:
+  fakedat <- rbind(
+    g1[rep(
+      seq_len(nrow(g1)),
+      nsubj / 2
+    ), ],
+    g2[rep(
+      seq_len(nrow(g2)),
+      nsubj / 2
+    ), ]
+  )
+
+  ## add subjects:
+  fakedat$subj <- rep(1:nsubj, each = nitem)
+
+  ## add contrast coding:
+  fakedat$cond <- ifelse(fakedat$condition == "a", -1 / 2, 1 / 2)
+
+  ## Define variance covariance matrices:
+  Sigma_u <- matrix(c(
+    ranefsd[1]^2,
+    corr[1] * ranefsd[1] * ranefsd[2],
+    corr[1] * ranefsd[1] * ranefsd[2],
+    ranefsd[2]^2
+  ), nrow = 2)
+
+  Sigma_w <- matrix(c(
+    ranefsd[3]^2,
+    corr[2] * ranefsd[3] * ranefsd[4],
+    corr[2] * ranefsd[3] * ranefsd[4],
+    ranefsd[4]^2
+  ), nrow = 2)
+
+  ## subj ranef
+  u <- MASS::mvrnorm(
+    n = length(unique(fakedat$subj)),
+    mu = c(0, 0), Sigma = Sigma_u
+  )
+  # item ranef
+  w <- MASS::mvrnorm(
+    n = length(unique(fakedat$item)),
+    mu = c(0, 0), Sigma = Sigma_w
+  )
+
+  ## generate data:
+  N <- dim(fakedat)[1]
+  rt <- rep(NA, N)
+  for (i in 1:N) {
+    rt[i] <- rlnorm(1, beta[1] +
+      u[fakedat[i, ]$subj, 1] +
+      w[fakedat[i, ]$item, 1] +
+      (beta[2] +
+        u[fakedat[i, ]$subj, 2] +
+        w[fakedat[i, ]$item, 2]) * fakedat$cond[i], sigma_e)
+  }
+
+  fakedat$rt <- rt
+  fakedat
+}
+```
+## Generate fake normal data
+
+```{r}
+## ----genfakenorm,echo=TRUE------------------------------------------------------------------------
+ ## Define function to generate normally distributed LMM data:
+ gen_fake_norm <- function(nitem = 16,
+                           nsubj = 42,
+                           beta = c(420, 102),
+                           ranefsd = c(154, 149, 37, 60),
+                           corr = c(.6, .6),
+                           sigma_e = 305) {
+  ## prepare data frame for two condition latin square:
+  g1 <- data.frame(
+    item = 1:nitem,
+    condition = rep(
+      letters[1:2],
+      nitem / 2
+    )
+  )
+  g2 <- data.frame(
+    item = 1:nitem,
+    condition = rep(
+      letters[2:1],
+      nitem / 2
+    )
+  )
+
+  ## assemble data frame:
+  fakedat <- rbind(
+    g1[rep(
+      seq_len(nrow(g1)),
+      nsubj / 2
+    ), ],
+    g2[rep(
+      seq_len(nrow(g2)),
+      nsubj / 2
+    ), ]
+  )
+
+  ## add subjects:
+  fakedat$subj <- rep(1:nsubj, each = nitem)
+
+  ## add contrast coding:
+  fakedat$cond <- ifelse(fakedat$condition == "a", -1 / 2, 1 / 2)
+
+  ## Define variance covariance matrices:
+  Sigma_u <- matrix(c(
+    ranefsd[1]^2,
+    corr[1] * ranefsd[1] * ranefsd[2],
+    corr[1] * ranefsd[1] * ranefsd[2],
+    ranefsd[2]^2
+  ), nrow = 2)
+
+  Sigma_w <- matrix(c(
+    ranefsd[3]^2,
+    corr[2] * ranefsd[3] * ranefsd[4],
+    corr[2] * ranefsd[3] * ranefsd[4],
+    ranefsd[4]^2
+  ), nrow = 2)
+
+  ## subj ranef
+  u <- MASS::mvrnorm(
+    n = length(unique(fakedat$subj)),
+    mu = c(0, 0), Sigma = Sigma_u
+  )
+  # item ranef
+  w <- MASS::mvrnorm(
+    n = length(unique(fakedat$item)),
+    mu = c(0, 0), Sigma = Sigma_w
+  )
+
+  ## generate data:
+  N <- dim(fakedat)[1]
+  rt <- rep(NA, N)
+  for (i in 1:N) {
+    rt[i] <- rnorm(1, beta[1] +
+      u[fakedat[i, ]$subj, 1] +
+      w[fakedat[i, ]$item, 1] +
+      (beta[2] +
+        u[fakedat[i, ]$subj, 2] +
+        w[fakedat[i, ]$item, 2]) * fakedat$cond[i], sigma_e)
+  }
+
+  fakedat$rt <- rt
+  fakedat
+ }
+```
+
+
+## Compute power
+
+```{r}
+## ----computepower-----------------------------------------------------------------------
+## the default values are for Chinese:
+compute_power_freq <- function(nitem = 16,
+                           nsubj = 42,
+                           beta = c(6, -0.07),
+                           ranefsd = c(0.25, 0.11, 0.18, 0.0),
+                           corr = c(.6, .6),
+                           sigma_e = 0.52) {
+  tvalsfreq <- rep(NA, 500)
+  for (i in 1:500) {
+    #  print(paste("iter",i,sep=" "))
+    dat <- gen_fake_lnorm(nitem = nitem,
+                           nsubj = nsubj,
+                           beta = beta,
+                           ranefsd = ranefsd,
+                           corr = corr,
+                           sigma_e =sigma_e
+    )
+    mtest <- lmer(log(rt) ~ cond + (1 + cond | subj) +
+      (1 + cond | item), dat,
+    control = lmerControl(
+      optimizer = "nloptwrap",
+      calc.derivs = FALSE
+    )
+    )
+    tvalsfreq[i] <- summary(mtest)$coefficients[2, 3]
+  }
+  mean(abs(tvalsfreq) > 2)
+}
+```
+
+# Demonstrate Type M error
+
+```{r cache=TRUE}
+## ----typeMENCN--------------------------------------------------
+nsim<-500
+estEN<-tvalEN<-rep(NA,nsim)
+
+b<-extraDistr::rtnorm(nsim,mean=0.12,sd=0.04,a=0.04)
+for(i in 1:nsim){
+dat<-gen_fake_lnorm(nitem = 16,
+                    nsubj = 42,
+                    beta = c(6, b[i]),
+                           ranefsd = c(0.32, 0.22, 0.04, 0.09),
+                           corr = c(.6, .6),
+                           sigma_e = 0.31)
+m<-lmer(log(rt)~cond + (1+cond||subj)+(1+cond||item),dat,
+        control = lmerControl(
+      optimizer = "nloptwrap",
+      calc.derivs = FALSE
+    ))
+estEN[i]<-summary(m)$coefficients[2,1]
+tvalEN[i]<-summary(m)$coefficients[2,3]
+}
+
+estEN<-data.frame(estimate=estEN,tval=tvalEN)
+estENsig<-subset(estEN,abs(tval)>2)
+summary(estENsig)
+summary(estEN$estimate)
+
+p1TypeM<-ggplot(estENsig, aes(x=estimate)) + geom_histogram(aes(y=..density..),colour="black", 
+                                                            fill="white",bins=50)+
+  geom_vline(aes(xintercept=0.12),
+            color="blue", linetype="dashed", size=1)+
+  ggtitle("English (Type M error)")+theme_bw()
+
+
+estCN<-tvalCN<-rep(NA,nsim)
+b<-extraDistr::rtnorm(nsim,mean=-0.07,sd=0.05,b=0.03)
+for(i in 1:nsim){
+dat<-gen_fake_lnorm(nitem = 16,
+                           nsubj = 42,
+                           beta=c(6,b[i]),
+                           ranefsd = c(0.25, 0.11, 0.18, 0.0),
+                           corr = c(.6, .6),
+                           sigma_e = 0.52)
+m<-lmer(log(rt)~cond + (1+cond||subj)+(1+cond||item),dat,
+        control = lmerControl(
+      optimizer = "nloptwrap",
+      calc.derivs = FALSE
+    ))
+estCN[i]<-summary(m)$coefficients[2,1]
+tvalCN[i]<-summary(m)$coefficients[2,3]
+}
+
+estCN<-data.frame(estimate=estCN,tval=tvalCN)
+estCNsig<-subset(estCN,abs(tvalCN)>2)
+summary(estCNsig)
+summary(estCN$estimate)
+
+p2TypeM<-ggplot(estCNsig, aes(x=estimate)) + geom_histogram(aes(y=..density..), colour="black", fill="white",bins=50)+
+  geom_vline(aes(xintercept=-0.07),
+            color="blue", linetype="dashed", size=1)+
+  ggtitle("Chinese")+theme_bw()
+```
+
+Notice that almost all significant effects are overestimates:
+
+```{r}
+gridExtra::grid.arrange(p1TypeM,p2TypeM,ncol=2)
+```
+
+# Frequentist LMMs for the RC data
+
+Load the two data sets (bcogsci can be installed from github: https://github.com/bnicenboim/bcogsci).
+
+```{r}
+## ----loaddataEN-------------------------------------------------------------------------
+library(bcogsci)
+data("df_gg05_rc")
+df_gg05_rc<-df_gg05_rc[c("subj","item","condition","RT")]
+df_gg05_rc$condition<-factor(df_gg05_rc$condition,
+                             levels=c("subjgap","objgap"))
+
+df_gg05_rc$cond <- ifelse(df_gg05_rc$condition == "objgap", 1 / 2, -1 / 2)
+## ignoring the singularity warning:
+df_gg05_rc$logrt<-log(df_gg05_rc$RT)
+m_gg05 <- lmer(logrt~cond + (1 + cond | subj) +
+  (1 + cond || item), df_gg05_rc)
+## summary(m_gg05)
+```
+
+```{r}
+## ----loaddataCN,echo=TRUE-------------------------------------------------------------------------
+data("df_gibsonwu")
+## make the EN and CN columns identical:
+df_gibsonwu$condition<-ifelse(df_gibsonwu$type=="obj-ext",
+                              "objgap","subjgap")
+df_gibsonwu$condition<-factor(df_gibsonwu$condition,
+                              levels=c("subjgap","objgap"))
+df_gibsonwu$RT<-df_gibsonwu$rt
+df_gibsonwu$logrt<-log(df_gibsonwu$RT)
+df_gibsonwu$cond<-ifelse(df_gibsonwu$condition=="objgap",+1/2,-1/2)
+df_gibsonwu<-df_gibsonwu[c("subj","item","condition","RT","cond","logrt")]
+
+m_gw <- lmer(logrt ~ cond + (1 + cond || subj) +
+  (1 | item), df_gibsonwu)
+#summary(m_gw)
+```
+
+# Power analysis using simulation
+
+Not run (each loop takes 5-6 days on a Macbook Pro without any parallelization).
+
+```{r eval=FALSE}
+subj_size<-c(50,100,200,300)
+nsamp<-500
+## English:
+b_sampled<-extraDistr::rtnorm(nsamp,mean=0.12,sd=0.04,a=0.02,b=0.20)
+
+power_est<-matrix(rep(NA,nsamp*length(subj_size)),nrow=length(subj_size))
+
+for(j in 1:length(subj_size)){
+   for(i in 1:nsamp){
+     print(i)
+     power_est[j,i] <- compute_power_freq(nitem = 16,
+                    nsubj = subj_size[j],
+                    beta = c(6, b_sampled[i]),
+                           ranefsd = c(0.32, 0.22, 0.04, 0.09),
+                           corr = c(.6, .6),
+                           sigma_e = 0.31)
+}
+}
+
+save(power_est,file="data/power_est.rda")
+
+## Chinese:
+subj_size<-c(50,100,200,300)
+nsamp<-500
+## Chinese estimate:
+b_sampled<-extraDistr::rtnorm(nsamp,mean=-0.07,sd=0.05,a=-0.17,b=0.03)
+
+power_estCN<-matrix(rep(NA,nsamp*length(subj_size)),nrow=length(subj_size))
+
+for(j in 1:length(subj_size)){
+   for(i in 1:nsamp){
+     print(i)
+     power_estCN[j,i] <- compute_power_freq(nitem = 16,
+                           nsubj = subj_size[j],
+                           beta = c(6, b_sampled[i]),
+                           ranefsd = c(0.25, 0.11, 0.18, 0.0),
+                           corr = c(.6, .6),
+                           sigma_e = 0.52)
+}
+}
+
+save(power_estCN,file="data/power_estCN.rda")
+```
+
+
+Load pre-computed power values:
+
+```{r}
+## ----echo=TRUE,fig.height=3-----------------------------------------------------------------------
+load("paper/data/power_est.rda")
+
+## format for plotting:
+power_EN<-data.frame(size=rep(c(50,100,200,300),each=500),
+           power=c(power_est[1,],
+                   power_est[2,],
+                   power_est[3,],
+                   power_est[4,]))
+
+scl<-1
+
+p1_powerEN<-ggplot(power_EN, 
+       aes(x = power, y = factor(size),
+           height = ..density..
+           )) +
+  geom_density_ridges(scale = scl
+                      ,stat = "density"
+                      #rel_min_height = 0.01
+                      ) +
+  ggtitle("English")+
+  ylab("sample size")+
+  xlab("estimated power")+theme_bw()
+
+load("paper/data/power_estCN.rda")
+
+power_CN<-data.frame(size=rep(c(50,100,200,300),each=500),
+           power=c(power_estCN[1,],
+                   power_estCN[2,],
+                   power_estCN[3,],
+                   power_estCN[4,]))
+
+p1_powerCN<-ggplot(power_CN, 
+       aes(x = power, y = factor(size),
+           height = ..density..
+           )) +
+  geom_density_ridges(scale = scl
+                      ,stat = "density"
+                      #rel_min_height = 0.01
+                      ) +
+  ggtitle("Chinese")+
+  ylab("sample size")+
+  xlab("estimated power")+theme_bw()
+
+
+gridExtra::grid.arrange(p1_powerEN,p1_powerCN,ncol=2)
+```
+
+The power distribution in Chinese is wider because the estimate of the fixed effect has a wide SE.
+
+# After the data are collected
+
+## Boxplots
+
+```{r}
+## ----boxplots--------------------------------------------------------------
+p1 <- ggplot(df_gg05_rc, aes(x=condition, y=RT)) + 
+  geom_boxplot() + ggtitle("English RCs")
+p1<-p1+geom_jitter(shape=16, position=position_jitter(0.2))+theme_bw()+#scale_y_continuous(trans='log2')+
+  ylab("Reading time in ms")+
+  coord_cartesian(ylim = c(100,7500)) 
+    
+
+p1CN <- ggplot(df_gibsonwu, aes(x=condition, y=RT)) + 
+  geom_boxplot() + ggtitle("Chinese RCs")
+p1CN<-p1CN+geom_jitter(shape=16, 
+                       position=position_jitter(0.2))+
+  theme_bw()+#scale_y_continuous(trans='log2')+
+  ylab("")+
+  coord_cartesian(ylim = c(100,7500)) 
+
+grid.arrange(p1, p1CN, ncol=2)
+```
+
+
+Use lmList function to compute individual estimates:
+
+```{r eval=FALSE}
+## ----nopooling,echo=TRUE,warning=FALSE------------------------------------------------------------
+mnopooling<-lmList(logrt~cond|subj,df_gg05_rc)
+slopes_all<-coef(mnopooling)[,2]
+#sort(slopes_all)
+ints<-coef(mnopooling)[c(28,36,37),1]
+slopes<-coef(mnopooling)[c(28,36,37),2]
+
+subj28<-round(exp(ints[1]+slopes[1]/2)-exp(ints[1]-slopes[1]/2))
+subj36<-round(exp(ints[2]+slopes[2]/2)-exp(ints[2]-slopes[2]/2))
+subj37<-round(exp(ints[3]+slopes[3]/2)-exp(ints[3]-slopes[3]/2))
+```
+
+## xy-plots
+
+```{r fig.height=10}
+## ----xyplot---------------------------------------------------
+df_gg05_rc$group<-ifelse(df_gg05_rc$subj%in%c(28,36,37),"unusual","typical")
+p2<- ggplot(data = df_gg05_rc, aes(
+    x = cond,
+    y = RT, color=group
+  )) +
+  scale_y_continuous(trans='log2') + 
+    facet_wrap( ~ subj) +
+    geom_smooth(method = "lm") +
+    geom_point(shape = 1, size = 3) +
+    theme(panel.grid.minor = element_blank())+
+    scale_x_continuous(breaks = round(seq(-1/2, 1/2, by = 1), 1)) +
+    ylab("Reading time in ms (log-scaled)") +
+    xlab("condition (-1/2: SR, +1/2: OR)")+
+    theme_bw()+ggtitle("English RCs")+theme(panel.spacing.x = unit(1, "lines"))+theme(legend.position='top')
+
+df_gibsonwu$group<-ifelse(df_gibsonwu$subj%in%c(11,27),"unusual","typical")
+p2CN<- ggplot(data = df_gibsonwu, aes(
+    x = cond,
+    y = RT, color = group
+  )) + scale_y_continuous(trans='log2')+
+    facet_wrap( ~ subj) +
+    geom_smooth(method = "lm") +
+    geom_point(shape = 1, size = 3) +
+    theme(panel.grid.minor = element_blank())+
+    scale_x_continuous(breaks = round(seq(-1/2, 1/2, by = 1), 1)) +
+    ylab("Reading time in ms (log-scaled)") +
+    xlab("condition (-0.5: SR, +0.5: OR)")+
+    theme_bw()+ggtitle("Chinese RCs")+theme(panel.spacing.x = unit(1, "lines"))+theme(legend.position='none')
+
+
+gridExtra::grid.arrange(p2,p2CN,ncol=1)
+```
+
+# Violation of the Normality assumption
+
+E.g., in the Chinese data, fitting the data on raw RTs gives a significant result, but this is driven by only two extreme data points in the SR condition.
+
+```{r}
+## ----fitlmmrawCN------------------------------------------------------------------------
+m_gibsonwuraw <- lmer(RT~cond + (1 + cond || subj) +
+  (1 + cond || item), df_gibsonwu)
+t_raw<-summary(m_gibsonwuraw)$coefficients[2,3]
+m_gibsonwurawreduced <- lmer(RT~cond + (1 + cond || subj) +
+  (1 + cond || item), subset(df_gibsonwu,RT<5000))
+t_rawred<-summary(m_gibsonwurawreduced)$coefficients[2,3]
+```
+
+# t-tests: Aggregation can mislead
+
+```{r}
+## ----echo=TRUE------------------------------------------------------------------------------------
+ ## overly strong evidence due to ignoring by item variability:
+bysubjlogEN <- aggregate(logrt ~ subj + condition, mean, data = df_gg05_rc)
+
+bysubjlogCN <- aggregate(logrt ~ subj + condition, mean, data = df_gibsonwu)
+
+bysubjrawEN <- aggregate(RT ~ subj + condition, mean, data = df_gg05_rc)
+
+bysubjrawCN <- aggregate(RT ~ subj + condition, mean, data = df_gibsonwu)
+```
+
+
+```{r}
+## ----englishttest-----------------------------------------------------------------------
+## pseudoreplication problem:
+
+t_res_indEN<-summary_ttest(t.test(logrt~condition,paired=TRUE,
+                                  df_gg05_rc))
+# normality problem:
+## aggregated:
+
+meansEN<-with(bysubjrawEN,tapply(RT,condition,mean))
+sdsEN<-with(bysubjrawEN,tapply(RT,condition,sd))
+
+t_res_normEN<-summary_ttest(t.test(RT~condition,
+                                   paired=TRUE,
+                                   bysubjrawEN))
+## both ind and norm problem:
+t_res_indnormEN<-summary_ttest(t.test(RT~condition,paired=TRUE,
+                                  df_gg05_rc))
+
+## correct t-test:
+t_res_correctEN<-summary_ttest(t.test(logrt~condition,
+                                      paired=TRUE,bysubjlogEN))
+```
+
+```{r}
+## ----chinessettest----------------------------------------------------------------------
+df_gibsonwu27<-subset(df_gibsonwu,subj!=27)
+
+## pseudoreplication problem:
+t_res_indCN<-summary_ttest(t.test(logrt~condition,paired=TRUE,
+                                  df_gibsonwu27))
+# normality problem:
+## aggregated:
+t_res_normCN<-summary_ttest(t.test(RT~condition,paired=TRUE,
+                                   bysubjrawCN))
+## both ind and norm problem:
+t_res_indnormCN<-summary_ttest(t.test(RT~condition,paired=TRUE,
+                                  df_gibsonwu27))
+
+## correct t-test:
+t_res_correctCN<-summary_ttest(t.test(logrt~condition,
+                                      paired=TRUE,
+                                      bysubjlogCN))
+```
+
+## Raw vs log RTs
+
+Notice that models using raw RTs generate negative reading times.
+
+```{r}
+## ----rawvslog---------------------------------------------------------------------------
+ ## show predicted data from these two models:
+ m1raw<-lmer(RT ~ cond + (1+cond||subj) + (1+cond||item), df_gg05_rc ,
+             control = lmerControl(
+      optimizer = "nloptwrap",
+      calc.derivs = FALSE
+    ))
+ ## summary(m1raw)
+ 
+ m1log<-lmer(log(RT) ~ cond + (1+cond||subj) + (1+cond||item), df_gg05_rc,
+             control = lmerControl(
+      optimizer = "nloptwrap",
+      calc.derivs = FALSE
+    ))
+ ## summary(m1log)
+ 
+ m1rawCN<-lmer(RT ~ cond + (1+cond||subj) + (1+cond||item), df_gibsonwu,control = lmerControl(
+      optimizer = "nloptwrap",
+      calc.derivs = FALSE
+    ) )
+ ## summary(m1raw)
+ 
+ m1logCN<-lmer(logrt ~ cond + (1+cond||subj) + (1+cond||item), df_gibsonwu,
+               control = lmerControl(
+      optimizer = "nloptwrap",
+      calc.derivs = FALSE
+    ))
+```
+
+```{r cache=TRUE}
+## ----comparelograwEN---------------------------------------------------------
+ ## Generate fake normally distributed data:
+ nrep<-100
+ normal_fake<-matrix(rep(NA,nrep*672),nrow=nrep)
+ for(i in 1:nrep){
+ normal_fake[i,]<-gen_fake_norm()$rt
+ }  
+
+ ## Generate lognormal data:
+  lognormal_fake<-matrix(rep(NA,nrep*672),nrow=nrep)
+ for(i in 1:nrep){
+ lognormal_fake[i,]<-gen_fake_lnorm()$rt
+ }  
+
+
+## ----comparelograwCN---------------------------------------------------------
+## Generate fake Chinese data from normal:
+ normal_fakeCN<-matrix(rep(NA,nrep*672),nrow=nrep)
+ for(i in 1:nrep){
+ normal_fakeCN[i,]<-gen_fake_norm(nitem = 16,
+                           nsubj = 42,
+                           beta = c(548, -120),
+                           ranefsd = c(148,35,150,111),
+                           corr = c(.6, .6),
+                           sigma_e = 557)$rt
+ }  
+
+## Generate lognormal for Chinese:  
+  lognormal_fakeCN<-matrix(rep(NA,nrep*672),nrow=nrep)
+ for(i in 1:nrep){
+ lognormal_fakeCN[i,]<-gen_fake_lnorm(nitem = 16,
+                           nsubj = 42,
+                           beta = c(6.06208, -0.07161),
+                           ranefsd = c(0.2446,0.1120,0.1809,0),
+                           corr = c(.6, .6),
+                           sigma_e = 0.5148 )$rt
+ }  
+
+
+## ----showlograw,echo=TRUE,fig.width=7-------------------------------------------------------------
+color_scheme_set("brightblue")
+
+p1ENnorm<-ppc_dens_overlay(df_gg05_rc$RT, 
+                           normal_fake[,1:length(df_gg05_rc$RT)]) +
+          xlab("reading time (ms)")+ylab("density") +
+  ggtitle("English (Normal)")
+p1ENlnorm<-ppc_dens_overlay(df_gibsonwu$RT, 
+                           lognormal_fakeCN[,1:length(df_gibsonwu$RT)]) +
+          xlab("reading time (ms)")+ylab("density") +
+  ggtitle("English (Lognormal)")
+
+p2CNnorm<-ppc_dens_overlay(df_gibsonwu$RT, 
+                           normal_fakeCN[,1:length(df_gibsonwu$RT)]) +
+          xlab("reading time (ms)")+ylab("density") +
+  ggtitle("Chinese (Normal)")
+p2CNlnorm<-ppc_dens_overlay(df_gibsonwu$RT, 
+                           lognormal_fakeCN[,1:length(df_gibsonwu$RT)]) +
+          xlab("reading time (ms)")+ylab("density") +
+  ggtitle("Chinese (Lognormal)")
+  
+gridExtra::grid.arrange(p1ENnorm,p1ENlnorm,p1ENnorm,p1ENlnorm,ncol=2)
+```
+
+# Bayes factors analyses
+
+Not run here.
+
+## Prior: $beta \sim Normal(0,0.1)$
+
+
+```{r eval=FALSE}
+priorsinf <- c(
+  prior(normal(6, 0.6), class = Intercept),
+  prior(normal(0, 0.1), class = b),
+  prior(normal(0, 0.5), class = sigma),
+  prior(normal(0, 0.5), class = sd),
+  prior(lkj(2), class = cor))
+
+fit_EN <- brm(RT ~ cond +
+  (cond | subj) + (cond | item),
+prior = priorsinf,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gg05_rc
+)
+
+priorsNULL <- c(
+  prior(normal(6, 0.6), class = Intercept),
+  prior(normal(0, 0.5), class = sigma),
+  prior(normal(0, 0.5), class = sd),
+  prior(lkj(2), class = cor))
+
+
+fit_ENNULL <- brm(RT ~ 1 +
+  (cond | subj) + (cond | item),
+prior = priorsNULL,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gg05_rc
+)
+
+alphaEN<-c(as_draws_df(fit_EN)$Intercept)
+betaEN<-c(as_draws_df(fit_EN)$b_cond)
+
+RC_EN<-exp(alphaEN+betaEN/2)-exp(alphaEN-betaEN/2)
+
+save(RC_EN,file="data/RC_EN.rda")
+
+bfEN<-bayes_factor(fit_EN,fit_ENNULL)$bf
+
+save(bfEN,file="data/bfEN.rda")
+
+fit_CN <- brm(RT ~ cond +
+  (cond | subj) + (cond | item),
+prior = priorsinf,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gibsonwu)
+
+alphaCN<-c(as_draws_df(fit_CN)$Intercept)
+betaCN<-c(as_draws_df(fit_CN)$b_cond)
+
+RC_CN<-exp(alphaCN+betaCN/2)-exp(alphaCN-betaCN/2)
+
+save(RC_CN,file="data/RC_CN.rda")
+
+fit_CNNULL <- brm(RT ~ 1 +
+  (cond | subj) + (cond | item),
+prior = priorsNULL,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gibsonwu
+)
+
+bfCN<-bayes_factor(fit_CN,fit_CNNULL)$bf
+
+save(bfCN,file="data/bfCN.rda")
+```
+
+## Prior: $beta \sim Normal(0,1)$
+
+```{r stdnormal,eval=FALSE}
+priorsuninfnormal <- c(
+  prior(normal(6, 0.6), class = Intercept),
+  prior(normal(0,1), class = b),
+  prior(normal(0, 0.5), class = sigma),
+  prior(normal(0, 0.5), class = sd),
+  prior(lkj(2), class = cor))
+
+fit_EN2normal <- brm(RT ~ cond +
+  (cond | subj) + (cond | item),
+prior = priorsuninfnormal,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gg05_rc
+)
+
+priorsNULL <- c(
+  prior(normal(6, 0.6), class = Intercept),
+  prior(normal(0, 0.5), class = sigma),
+  prior(normal(0, 0.5), class = sd),
+  prior(lkj(2), class = cor))
+
+
+fit_ENNULL <- brm(RT ~ 1 +
+  (cond | subj) + (cond | item),
+prior = priorsNULL,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gg05_rc
+)
+
+alphaEN2normal<-c(as_draws_df(fit_EN2normal)$Intercept)
+betaEN2normal<-c(as_draws_df(fit_EN2normal)$b_cond)
+
+RC_EN2normal<-exp(alphaEN2normal+betaEN2normal/2)-exp(alphaEN2normal-betaEN2normal/2)
+
+save(RC_EN2normal,file="data/RC_EN2normal.rda")
+
+bfEN2normal<-bayes_factor(fit_EN2normal,fit_ENNULL)$bf
+
+save(bfEN2normal,file="data/bfEN2normal.rda")
+
+fit_CN2normal <- brm(RT ~ cond +
+  (cond | subj) + (cond | item),
+prior = priorsuninfnormal,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gibsonwu)
+
+alphaCN2normal<-c(as_draws_df(fit_CN2normal)$Intercept)
+betaCN2normal<-c(as_draws_df(fit_CN2normal)$b_cond)
+
+RC_CN2normal<-exp(alphaCN2normal+betaCN2normal/2)-exp(alphaCN2normal-betaCN2normal/2)
+
+save(RC_CN2normal,file="data/RC_CN2normal.rda")
+
+fit_CNNULL <- brm(RT ~ 1 +
+  (cond | subj) + (cond | item),
+prior = priorsNULL,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gibsonwu
+)
+
+bfCN2normal<-bayes_factor(fit_CN2normal,fit_CNNULL)$bf
+
+save(bfCN2normal,file="data/bfCN2normal.rda")
+```
+
+## Prior: $beta \sim Cauchy(0,1)$
+
+This doesn't appear in the paper.
+
+```{r cauchy,eval=FALSE}
+priorsuninf <- c(
+  prior(normal(6, 0.6), class = Intercept),
+  prior(cauchy(0,1), class = b),
+  prior(normal(0, 0.5), class = sigma),
+  prior(normal(0, 0.5), class = sd),
+  prior(lkj(2), class = cor))
+
+fit_EN2 <- brm(RT ~ cond +
+  (cond | subj) + (cond | item),
+prior = priorsuninf,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gg05_rc
+)
+
+priorsNULL <- c(
+  prior(normal(6, 0.6), class = Intercept),
+  prior(cauchy(0, 0.5), class = sigma),
+  prior(cauchy(0, 0.5), class = sd),
+  prior(lkj(2), class = cor))
+
+
+fit_ENNULL <- brm(RT ~ 1 +
+  (cond | subj) + (cond | item),
+prior = priorsNULL,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gg05_rc
+)
+
+alphaEN2<-c(as_draws_df(fit_EN2)$Intercept)
+betaEN2<-c(as_draws_df(fit_EN2)$b_cond)
+
+RC_EN2<-exp(alphaEN2+betaEN2/2)-exp(alphaEN2-betaEN2/2)
+save(RC_EN2,file="data/RC_EN2.rda")
+
+bfEN2<-bayes_factor(fit_EN2,fit_ENNULL)$bf
+save(bfEN2,file="data/bfEN2.rda")
+
+fit_CN2 <- brm(RT ~ cond +
+  (cond | subj) + (cond | item),
+prior = priorsuninf,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gibsonwu)
+
+alphaCN2<-c(as_draws_df(fit_CN2)$Intercept)
+betaCN2<-c(as_draws_df(fit_CN2)$b_cond)
+
+RC_CN2<-exp(alphaCN2+betaCN2/2)-exp(alphaCN2-betaCN2/2)
+save(RC_CN2,file="data/RC_CN2.rda")
+
+
+fit_CNNULL <- brm(RT ~ 1 +
+  (cond | subj) + (cond | item),
+prior = priorsNULL,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gibsonwu
+)
+
+bfCN2<-bayes_factor(fit_CN2,fit_CNNULL)$bf
+
+save(bfCN2,file="data/bfCN2.rda")
+```
+
+## Prior: $\beta \sim Normal(0.02,0.01)$
+
+This is an informative prior that assumes that the effect is positive but small. The null is not a point value here, but rather a range of values around 0. This just illustrates that one need not be restricted to a point null.
+
+```{r enthusiastic,eval=FALSE}
+priorsnonzero <- c(
+  prior(normal(6, 0.6), class = Intercept),
+  prior(normal(0.02,0.01), class = b),
+  prior(normal(0, 0.5), class = sigma),
+  prior(normal(0, 0.5), class = sd),
+  prior(lkj(2), class = cor))
+
+priorsnonzeroCN <- c(
+  prior(normal(6, 0.6), class = Intercept),
+  prior(normal(-0.02,0.01), class = b),
+  prior(normal(0, 0.5), class = sigma),
+  prior(normal(0, 0.5), class = sd),
+  prior(lkj(2), class = cor))
+
+
+fit_EN3 <- brm(RT ~ cond +
+  (cond | subj) + (cond | item),
+prior = priorsnonzero,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gg05_rc
+)
+
+priorsNULLnonzero <- c(
+  prior(normal(6, 0.6), class = Intercept),
+  prior(normal(0,0.01), class = b),
+  prior(normal(0, 0.5), class = sigma),
+  prior(normal(0, 0.5), class = sd),
+  prior(lkj(2), class = cor))
+
+
+fit_ENNULLnonzero <- brm(RT ~ cond +
+  (cond | subj) + (cond | item),
+prior = priorsNULLnonzero,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gg05_rc
+)
+
+alphaEN3<-c(as_draws_df(fit_EN3)$Intercept)
+betaEN3<-c(as_draws_df(fit_EN3)$b_cond)
+
+RC_EN3<-exp(alphaEN3+betaEN3/2)-exp(alphaEN3-betaEN3/2)
+
+save(RC_EN3,file="data/RC_EN3.rda")
+
+bfEN3<-bayes_factor(fit_EN3,fit_ENNULLnonzero)$bf
+
+save(bfEN3,file="data/bfEN3.rda")
+
+fit_CN3 <- brm(RT ~ cond +
+  (cond | subj) + (cond | item),
+prior = priorsnonzeroCN,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gibsonwu)
+
+alphaCN3<-c(as_draws_df(fit_CN3)$Intercept)
+betaCN3<-c(as_draws_df(fit_CN3)$b_cond)
+
+RC_CN3<-exp(alphaCN3+betaCN3/2)-exp(alphaCN3-betaCN3/2)
+
+save(RC_CN3,file="data/RC_CN3.rda")
+
+fit_CNNULLnonzero <- brm(RT ~ cond +
+  (cond | subj) + (cond | item),
+prior = priorsNULLnonzero,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gibsonwu
+)
+
+bfCN3<-bayes_factor(fit_CN3,fit_CNNULLnonzero)$bf
+
+save(bfCN3,file="data/bfCN3.rda")
+```
+
+## Prior: $\beta \sim Normal(0.02,0.01)$
+
+This is also an enthusiastic prior, but this time the null is a point value (obviously, this makes much less sense but this is what we normally do in a frequentist ANOVA).
+
+```{r enthusiasticzero,eval=FALSE}
+priorszero <- c(
+  prior(normal(6, 0.6), class = Intercept),
+  prior(normal(0.02,0.01), class = b),
+  prior(normal(0, 0.5), class = sigma),
+  prior(normal(0, 0.5), class = sd),
+  prior(lkj(2), class = cor))
+
+priorszeroCN <- c(
+  prior(normal(6, 0.6), class = Intercept),
+  prior(normal(-0.02,0.01), class = b),
+  prior(normal(0, 0.5), class = sigma),
+  prior(normal(0, 0.5), class = sd),
+  prior(lkj(2), class = cor))
+
+
+fit_EN3zero <- brm(RT ~ cond +
+  (cond | subj) + (cond | item),
+prior = priorszero,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gg05_rc
+)
+
+priorsNULLzero <- c(
+  prior(normal(6, 0.6), class = Intercept),
+  prior(normal(0, 0.5), class = sigma),
+  prior(normal(0, 0.5), class = sd),
+  prior(lkj(2), class = cor))
+
+
+fit_ENNULLzero <- brm(RT ~ 1 +
+  (cond | subj) + (cond | item),
+prior = priorsNULLzero,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gg05_rc
+)
+
+alphaEN3zero<-c(as_draws_df(fit_EN3zero)$Intercept)
+betaEN3zero<-c(as_draws_df(fit_EN3zero)$b_cond)
+
+RC_EN3zero<-exp(alphaEN3zero+betaEN3zero/2)-exp(alphaEN3zero-betaEN3zero/2)
+
+save(RC_EN3zero,file="data/RC_EN3zero.rda")
+
+bfEN3zero<-bayes_factor(fit_EN3zero,fit_ENNULLzero)$bf
+
+save(bfEN3zero,file="data/bfEN3zero.rda")
+
+fit_CN3zero <- brm(RT ~ cond +
+  (cond | subj) + (cond | item),
+prior = priorszeroCN,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gibsonwu)
+
+alphaCN3zero<-c(as_draws_df(fit_CN3zero)$Intercept)
+betaCN3zero<-c(as_draws_df(fit_CN3zero)$b_cond)
+
+RC_CN3zero<-exp(alphaCN3zero+betaCN3zero/2)-exp(alphaCN3zero-betaCN3zero/2)
+
+save(RC_CN3zero,file="data/RC_CN3zero.rda")
+
+fit_CNNULLzero <- brm(RT ~ 1 +
+  (cond | subj) + (cond | item),
+prior = priorsNULLzero,
+family=lognormal(),
+warmup = 2000,
+iter = 20000,
+cores = 4,
+control = list(adapt_delta = 0.9),
+save_pars = save_pars(all = TRUE),
+data = df_gibsonwu
+)
+
+bfCN3zero<-bayes_factor(fit_CN3zero,fit_CNNULLzero)$bf
+
+save(bfCN3zero,file="data/bfCN3zero.rda")
+```
+
+
+Load precomputed BFs:
+
+```{r}
+## ----loadbfprecomputed,echo=TRUE------------------------------------------------------------------
+## mildly informative Normal(0,0.1):
+load("paper/data/RC_EN.rda")
+load("paper/data/RC_CN.rda")
+load("paper/data/bfEN.rda")
+load("paper/data/bfCN.rda")
+
+## Normal(0,1)
+load("paper/data/RC_EN2normal.rda")
+load("paper/data/RC_CN2normal.rda")
+load("paper/data/bfEN2normal.rda")
+load("paper/data/bfCN2normal.rda")
+
+## Cauchy(0,1)
+load("paper/data/RC_EN2.rda")
+load("paper/data/RC_CN2.rda")
+load("paper/data/bfEN2.rda")
+load("paper/data/bfCN2.rda")
+
+## Enthusiastic with non-zero null
+load("paper/data/RC_EN3.rda")
+load("paper/data/RC_CN3.rda")
+load("paper/data/bfEN3.rda")
+load("paper/data/bfCN3.rda")
+
+## Enthusiastic with zero null
+load("paper/data/RC_EN3zero.rda")
+load("paper/data/RC_CN3zero.rda")
+load("paper/data/bfEN3zero.rda")
+load("paper/data/bfCN3zero.rda")
+```
+
+## Posterior distributions
+
+I use the posterior from prior Normal(0,0.1).
+
+```{r}
+## ----echo=TRUE,fig.height=2-----------------------------------------------------------------------
+RC_EN<-data.frame(RC_EN)
+RC_CN<-data.frame(RC_CN)
+
+p1RCEN<-ggplot(RC_EN, aes(x=RC_EN)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+theme_bw()+ggtitle("English RC effect (ms)")+xlab("OR - SR reading time")
+p2RCCN<-ggplot(RC_CN, aes(x=RC_CN)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+theme_bw()+ggtitle("Chinese RC effect (ms)")+xlab("OR - SR reading time")
+gridExtra::grid.arrange(p1RCEN,p2RCCN,ncol=2)
+```

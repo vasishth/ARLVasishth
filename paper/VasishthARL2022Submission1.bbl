@@ -1,0 +1,414 @@
+\begin{thebibliography}{}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+
+\bibitem[Avetisyan et~al.(2020)Avetisyan, Lago \& Vasishth]{ALV2019}
+Avetisyan S, Lago S, Vasishth S. 2020.
+Does case marking affect agreement attraction in comprehension?
+\textit{Journal of Memory and Language} 112
+
+\bibitem[Baayen et~al.(2008)Baayen, Davidson \& Bates]{baayen2008mixed}
+Baayen RH, Davidson DJ, Bates DM. 2008.
+Mixed-effects modeling with crossed random effects for subjects and items.
+\textit{Journal of Memory and Language} 59:390--412
+
+\bibitem[Bates et~al.(2015)Bates, Maechler, Bolker \& Walker]{lme4new}
+Bates DM, Maechler M, Bolker B, Walker S. 2015.
+Fitting linear mixed-effects models using lme4.
+\textit{Journal of Statistical Software} 67:1--48
+
+\bibitem[Berman et~al.(2009)Berman, Jonides \& Lewis]{berman2009search}
+Berman M, Jonides J, Lewis RL. 2009.
+{In search of decay in verbal short-term memory.}
+\textit{Journal of Experimental Psychology: Learning, Memory, and Cognition}
+  35:317
+
+\bibitem[B{\"u}rki et~al.(2020)B{\"u}rki, Elbuy, Madec \&
+  Vasishth]{BuerkiEtAl2020}
+B{\"u}rki A, Elbuy S, Madec S, Vasishth S. 2020.
+What did we learn from forty years of research on semantic interference? {A
+  Bayesian} meta-analysis.
+\textit{Journal of Memory and Language} 114:104125
+
+\bibitem[B\"urkner(2017)]{brms}
+B\"urkner PC. 2017.
+{brms}: An {R} package for {B}ayesian multilevel models using {Stan}.
+\textit{Journal of Statistical Software} 80:1--28
+
+\bibitem[Button et~al.(2013)Button, Ioannidis, Mokrysz, Nosek, Flint
+  et~al.]{powerfailure}
+Button KS, Ioannidis JP, Mokrysz C, Nosek BA, Flint J, et~al. 2013.
+Power failure: {W}hy small sample size undermines the reliability of
+  neuroscience.
+\textit{Nature Reviews Neuroscience} 14:365--376
+
+\bibitem[Carpenter et~al.(2017)Carpenter, Gelman, Hoffman, Lee, Goodrich
+  et~al.]{carpenter2017stan}
+Carpenter B, Gelman A, Hoffman MD, Lee D, Goodrich B, et~al. 2017.
+Stan: A probabilistic programming language.
+\textit{Journal of statistical software} 76
+
+\bibitem[Clark(1973)]{clark1973lfe}
+Clark H. 1973.
+{The Language-as-Fixed-Effect Fallacy: {A} Critique of Language Statistics in
+  Psychological Research.}
+\textit{Journal of Verbal Learning and Verbal Behavior} 12:335--59
+
+\bibitem[Cohen(1962)]{cohen1962statistical}
+Cohen J. 1962.
+The statistical power of abnormal-social psychological research: {A} review.
+\textit{The Journal of Abnormal and Social Psychology} 65:145
+
+\bibitem[Cohen(1988)]{powerbookcohen}
+Cohen J. 1988.
+{Statistical power analysis for the behavioral sciences}.
+Hillsdale, NJ: Lawrence Erlbaum, 2nd ed.
+
+\bibitem[Cox et~al.(2022)Cox, Keren-Portnoy, Roepstorff \&
+  Fusaroli]{cox2022bayesian}
+Cox CMM, Keren-Portnoy T, Roepstorff A, Fusaroli R. 2022.
+A {B}ayesian meta-analysis of infants’ ability to perceive audio--visual
+  congruence for speech.
+\textit{Infancy} 27:67--96
+
+\bibitem[Fedorenko et~al.(2006)Fedorenko, Gibson \& Rohde]{fedorenko2006nature}
+Fedorenko E, Gibson E, Rohde D. 2006.
+The nature of working memory capacity in sentence comprehension: {E}vidence
+  against domain-specific working memory resources.
+\textit{Journal of memory and language} 54:541--553
+
+\bibitem[Gelman \& Carlin(2014)]{gelmancarlin}
+Gelman A, Carlin JB. 2014.
+Beyond power calculations: {A}ssessing {Type S} (sign) and {Type M} (magnitude)
+  errors.
+\textit{Perspectives on Psychological Science} 9:641--651
+
+\bibitem[Gelman et~al.(2014)Gelman, Carlin, Stern, Dunson, Vehtari \&
+  Rubin]{Gelman14}
+Gelman A, Carlin JB, Stern HS, Dunson DB, Vehtari A, Rubin DB. 2014.
+Bayesian data analysis.
+Boca Raton, FL: Chapman and Hall/CRC Press, third edition ed.
+
+\bibitem[Gelman \& Hill(2007)]{gelmanhill07}
+Gelman A, Hill J. 2007.
+Data analysis using regression and multilevel/hierarchical models.
+Cambridge, UK: Cambridge University Press
+
+\bibitem[Gibson et~al.(2005)Gibson, Desmet, Grodner, Watson \&
+  Ko]{gibson2005rrc}
+Gibson E, Desmet T, Grodner D, Watson D, Ko K. 2005.
+{Reading Relative Clauses in English}.
+\textit{Cognitive Linguistics} 16:313--353
+
+\bibitem[Gibson \& Wu(2013)]{gibsonwu}
+Gibson E, Wu HHI. 2013.
+Processing {C}hinese relative clauses in context.
+\textit{Language and Cognitive Processes} 28:125--155
+
+\bibitem[Gordon et~al.(2001)Gordon, Hendrick \& Johnson]{gordon01}
+Gordon PC, Hendrick R, Johnson M. 2001.
+Memory interference during language processing.
+\textit{Journal of Experimental Psychology: Learning, Memory and Cognition}
+  27(6):1411--1423
+
+\bibitem[Gordon et~al.(2004)Gordon, Hendrick \& Johnson]{gordon04}
+Gordon PC, Hendrick R, Johnson M. 2004.
+Effects of noun phrase type on sentence complexity.
+\textit{Journal of Memory and Language} 51:97--104
+
+\bibitem[Grodner \& Gibson(2005)]{grodner}
+Grodner D, Gibson E. 2005.
+Consequences of the serial nature of linguistic input.
+\textit{Cognitive Science} 29:261--290
+
+\bibitem[Hedges(1984)]{hedges1984estimation}
+Hedges LV. 1984.
+Estimation of effect size under nonrandom sampling: The effects of censoring
+  studies yielding statistically insignificant mean differences.
+\textit{Journal of Educational Statistics} 9:61--85
+
+\bibitem[Higgins \& Green(2008)]{cochrane}
+Higgins J, Green S. 2008.
+Cochrane handbook for systematics reviews of interventions.
+New York: Wiley-Blackwell
+
+\bibitem[Hoenig \& Heisey(2001)]{hoenigheisey}
+Hoenig JM, Heisey DM. 2001.
+The abuse of power: {T}he pervasive fallacy of power calculations for data
+  analysis.
+\textit{The American Statistician} 55:19--24
+
+\bibitem[Hsiao \& Gibson(2003)]{hsiao03}
+Hsiao FPF, Gibson E. 2003.
+Processing relative clauses in {C}hinese.
+\textit{Cognition} 90:3--27
+
+\bibitem[Hurlbert(1984)]{hurlbert1984pseudoreplication}
+Hurlbert SH. 1984.
+Pseudoreplication and the design of ecological field experiments.
+\textit{Ecological monographs} 54:187--211
+
+\bibitem[Ioannidis(2008)]{ioannidis2008most}
+Ioannidis JP. 2008.
+Why most discovered true associations are inflated.
+\textit{Epidemiology} 19:640--648
+
+\bibitem[J{\"a}ger et~al.(2017)J{\"a}ger, Engelmann \&
+  Vasishth]{JaegerEngelmannVasishth2017}
+J{\"a}ger LA, Engelmann F, Vasishth S. 2017.
+Similarity-based interference in sentence comprehension: {Literature review and
+  Bayesian meta-analysis}.
+\textit{Journal of Memory and Language} 94:316--339
+
+\bibitem[J\"ager et~al.(2020)J\"ager, Mertzen, Van~Dyke \&
+  Vasishth]{JaegerMertzenVanDykeVasishth2019}
+J\"ager LA, Mertzen D, Van~Dyke JA, Vasishth S. 2020.
+Interference patterns in subject-verb agreement and reflexives revisited: {A}
+  large-sample study.
+\textit{Journal of Memory and Language} 111
+
+\bibitem[Jeffreys(1939/1998)]{jeffreys1998theory}
+Jeffreys H. 1939/1998.
+The theory of probability.
+Oxford University Press
+
+\bibitem[Just \& Carpenter(1992)]{jc92}
+Just MA, Carpenter PA. 1992.
+A capacity theory of comprehension: {I}ndividual differences in working memory.
+\textit{Psychological Review} 99(1):122--149
+
+\bibitem[Kass \& Raftery(1995)]{kass1995bayes}
+Kass RE, Raftery AE. 1995.
+Bayes factors.
+\textit{Journal of the american statistical association} 90:773--795
+
+\bibitem[Kruschke \& Liddell(2018)]{kruschke2018bayesian}
+Kruschke J, Liddell TM. 2018.
+The bayesian new statistics: Hypothesis testing, estimation, meta-analysis, and
+  power analysis from a bayesian perspective.
+\textit{Psychonomic Bulletin \& Review} 25:178--206
+
+\bibitem[Kruschke(2010)]{kruschke2010believe}
+Kruschke JK. 2010.
+What to believe: {B}ayesian methods for data analysis.
+\textit{Trends in Cognitive Sciences} 14:293--300
+
+\bibitem[Lane \& Dunlap(1978)]{lane1978estimating}
+Lane DM, Dunlap WP. 1978.
+Estimating effect size: {B}ias resulting from the significance criterion in
+  editorial decisions.
+\textit{British Journal of Mathematical and Statistical Psychology} 31:107--112
+
+\bibitem[Lee \& Wagenmakers(2014)]{lee2014bayesian}
+Lee MD, Wagenmakers EJ. 2014.
+{B}ayesian cognitive modeling: {A} practical course.
+Cambridge University Press
+
+\bibitem[Levy \& Keller(2013)]{levy2013expectation}
+Levy RP, Keller F. 2013.
+Expectation and locality effects in {G}erman verb-final structures.
+\textit{Journal of Memory and Language} 68:199--222
+
+\bibitem[Liss{\'o}n et~al.(2021)Liss{\'o}n, Pregla, Nicenboim, Paape, van~het
+  Nederend et~al.]{LissonEtAl2021}
+Liss{\'o}n P, Pregla D, Nicenboim B, Paape D, van~het Nederend M, et~al. 2021.
+A computational evaluation of two models of retrieval processes in sentence
+  processing in aphasia.
+\textit{Cognitive Science} 45
+
+\bibitem[Logacev \& Bozkurt(2021)]{logacev2021statistical}
+Logacev P, Bozkurt M{\.I}. 2021.
+Statistical power in response signal paradigm experiments, In
+  \textit{Proceedings of the Annual Meeting of the Cognitive Science Society},
+  vol.~43
+
+\bibitem[Mahowald et~al.(2016)Mahowald, James, Futrell \&
+  Gibson]{mahowald2016meta}
+Mahowald K, James A, Futrell R, Gibson E. 2016.
+A meta-analysis of syntactic priming in language production.
+\textit{Journal of Memory and Language} 91:5--27
+
+\bibitem[Moerbeek \& Teerenstra(2015)]{moerbeek2015power}
+Moerbeek M, Teerenstra S. 2015.
+Power analysis of trials with multilevel data.
+CRC Press
+
+\bibitem[Nicenboim et~al.(2018{\natexlab{a}})Nicenboim, Roettger \&
+  Vasishth]{NicenboimRoettgeretal}
+Nicenboim B, Roettger TB, Vasishth S. 2018{\natexlab{a}}.
+Using meta-analysis for evidence synthesis: {The case of incomplete
+  neutralization in German}.
+\textit{Journal of Phonetics} 70:39--55
+
+\bibitem[Nicenboim et~al.(2021)Nicenboim, Schad \&
+  Vasishth]{NicenboimEtAlBayes2019}
+Nicenboim B, Schad DJ, Vasishth S. 2021.
+Introduction to {B}ayesian data analysis for cognitive science.
+Under contract with Chapman and Hall/CRC Statistics in the Social and
+  Behavioral Sciences Series
+
+\bibitem[Nicenboim et~al.(2018{\natexlab{b}})Nicenboim, Vasishth, Engelmann \&
+  Suckow]{NicenboimEtAlCogSci2018}
+Nicenboim B, Vasishth S, Engelmann F, Suckow K. 2018{\natexlab{b}}.
+Exploratory and confirmatory analyses in sentence processing: {A case study of
+  number interference in German}.
+\textit{Cognitive Science} 42
+
+\bibitem[Nicenboim et~al.(2020)Nicenboim, Vasishth \&
+  R{\"o}sler]{NicenboimPreactivation2019}
+Nicenboim B, Vasishth S, R{\"o}sler F. 2020.
+Are words pre-activated probabilistically during sentence comprehension?
+  evidence from new data and a {B}ayesian random-effects meta-analysis using
+  publicly available data.
+\textit{Neuropsychologia} 142
+
+\bibitem[O'Hagan et~al.(2006)O'Hagan, Buck, Daneshkhah, Eiser, Garthwaite
+  et~al.]{ohagan2006uncertain}
+O'Hagan A, Buck CE, Daneshkhah A, Eiser JR, Garthwaite PH, et~al. 2006.
+Uncertain judgements: {E}liciting experts' probabilities.
+John Wiley \& Sons
+
+\bibitem[{Open~Science~Collaboration}(2015)]{open2015estimating}
+{Open~Science~Collaboration}. 2015.
+Estimating the reproducibility of psychological science.
+\textit{Science} 349:aac4716
+
+\bibitem[Pankratz et~al.(2021)Pankratz, Yadav, Smith \&
+  Vasishth]{PankratzEtAl2021}
+Pankratz E, Yadav H, Smith G, Vasishth S. 2021.
+Statistical properties of the speed-accuracy trade-off ({{SAT}}) paradigm in
+  sentence processing, In \textit{Proceedings of {{CogSci}} 2021},\ pp.
+  2176--2182
+
+\bibitem[Pinheiro \& Bates(2000)]{pinheirobates}
+Pinheiro JC, Bates DM. 2000.
+Mixed-effects models in {S} and {S-PLUS}.
+New York: Springer-Verlag
+
+\bibitem[Rouder \& Haaf(2021)]{rouder2021there}
+Rouder JN, Haaf JM. 2021.
+Are there reliable qualitative individual difference in cognition?
+\textit{Journal of Cognition} 4
+
+\bibitem[Schad et~al.(2020{\natexlab{a}})Schad, Betancourt \&
+  Vasishth]{SchadEtAlWorkflow}
+Schad DJ, Betancourt M, Vasishth S. 2020{\natexlab{a}}.
+Toward a principled {B}ayesian workflow in cognitive science.
+\textit{Psychological Methods} 26:103--126
+
+\bibitem[Schad et~al.(2022{\natexlab{a}})Schad, Nicenboim, B{\"u}rkner,
+  Betancourt \& Vasishth]{SchadEtAlBF}
+Schad DJ, Nicenboim B, B{\"u}rkner PC, Betancourt M, Vasishth S.
+  2022{\natexlab{a}}.
+Workflow techniques for the robust use of {B}ayes factors.
+\textit{Psychological Methods}
+
+\bibitem[Schad et~al.(2022{\natexlab{b}})Schad, Nicenboim \&
+  Vasishth]{SchadEtAlAggregation2022}
+Schad DJ, Nicenboim B, Vasishth S. 2022{\natexlab{b}}.
+Data aggregation can lead to biased inferences in {B}ayesian linear mixed
+  models
+
+\bibitem[Schad et~al.(2020{\natexlab{b}})Schad, Vasishth, Hohenstein \&
+  Kliegl]{SchadEtAlcontrasts}
+Schad DJ, Vasishth S, Hohenstein S, Kliegl R. 2020{\natexlab{b}}.
+How to capitalize on a priori contrasts in linear (mixed) models: {A} tutorial.
+\textit{Journal of Memory and Language} 110
+
+\bibitem[Spiegelhalter et~al.(1994)Spiegelhalter, Freedman \&
+  Parmar]{spiegelhalter1994bayesian}
+Spiegelhalter DJ, Freedman LS, Parmar MK. 1994.
+Bayesian approaches to randomized trials.
+\textit{Journal of the Royal Statistical Society. Series A (Statistics in
+  Society)} 157:357--416
+
+\bibitem[{Stan Development Team}(2016)]{rstan2141}
+{Stan Development Team}. 2016.
+{RStan}: the {R} interface to {Stan}.
+R package version 2.14.1
+
+\bibitem[{Van~Dyke} \& McElree(2006)]{vandykemcelree06}
+{Van~Dyke} J, McElree B. 2006.
+Retrieval interference in sentence comprehension.
+\textit{Journal of Memory and Language} 55:157--166
+
+\bibitem[Vasishth et~al.(2013)Vasishth, Chen, Li \&
+  Guo]{VasishthetalPLoSOne2013}
+Vasishth S, Chen Z, Li Q, Guo G. 2013.
+Processing {C}hinese relative clauses: {E}vidence for the subject-relative
+  advantage.
+\textit{PLoS ONE} 8:1--14
+
+\bibitem[Vasishth et~al.(2017)Vasishth, Chopin, Ryder \&
+  Nicenboim]{VasishthChopinRyderNicenboimCogSci2017}
+Vasishth S, Chopin N, Ryder R, Nicenboim B. 2017.
+Modelling dependency completion in sentence comprehension as a {B}ayesian
+  hierarchical mixture process: {A} case study involving {C}hinese relative
+  clauses, In \textit{Proceedings of the Cognitive Science Conference}. London,
+  UK
+
+\bibitem[Vasishth \& Engelmann(2022)]{VasishthEngelmann2020}
+Vasishth S, Engelmann F. 2022.
+Sentence comprehension as a cognitive process: {A} computational approach.
+Cambridge, UK: Cambridge University Press
+
+\bibitem[Vasishth \& Gelman(2021)]{VasishthGelman2021}
+Vasishth S, Gelman A. 2021.
+How to embrace variation and accept uncertainty in linguistic and
+  psycholinguistic data analysis.
+\textit{Linguistics} 59:1311--1342
+
+\bibitem[Vasishth \& Lewis(2006)]{vasishthlewisLanguage05}
+Vasishth S, Lewis RL. 2006.
+Argument-head distance and processing complexity: {E}xplaining both locality
+  and antilocality effects.
+\textit{Language} 82:767--794
+
+\bibitem[Vasishth et~al.(2018{\natexlab{a}})Vasishth, Mertzen, J{\"a}ger \&
+  Gelman]{VasishthMertzenJaegerGelman2018}
+Vasishth S, Mertzen D, J{\"a}ger LA, Gelman A. 2018{\natexlab{a}}.
+The statistical significance filter leads to overoptimistic expectations of
+  replicability.
+\textit{Journal of Memory and Language} 103:151--175
+
+\bibitem[Vasishth \& Nicenboim(2016)]{VasishthNicenboimStatMeth}
+Vasishth S, Nicenboim B. 2016.
+Statistical methods for linguistic research: {F}oundational ideas – {Part I}.
+\textit{Language and Linguistics Compass} 10:349--369
+
+\bibitem[Vasishth et~al.(2018{\natexlab{b}})Vasishth, Nicenboim, Beckman, Li \&
+  Kong]{VasishthBeckmanetal}
+Vasishth S, Nicenboim B, Beckman ME, Li F, Kong EJ. 2018{\natexlab{b}}.
+Bayesian data analysis in the phonetic sciences: {A} tutorial introduction.
+\textit{Journal of Phonetics} 71:141--161
+
+\bibitem[Vasishth et~al.(2022{\natexlab{a}})Vasishth, Schad, B{\"u}rki \&
+  Kliegl]{VasishthEtAlFreq2019}
+Vasishth S, Schad DJ, B{\"u}rki A, Kliegl R. 2022{\natexlab{a}}.
+Linear mixed models for linguistics and psychology: {A} comprehensive
+  introduction.
+Under contract with Chapman and Hall/CRC Statistics in the Social and
+  Behavioral Sciences Series
+
+\bibitem[Vasishth et~al.(2022{\natexlab{b}})Vasishth, Yadav, Schad \&
+  Nicenboim]{vasishth2021sample}
+Vasishth S, Yadav H, Schad D, Nicenboim B. 2022{\natexlab{b}}.
+Sample size determination for {B}ayesian hierarchical models commonly used in
+  psycholinguistics
+
+\bibitem[Wagenmakers et~al.(2018)Wagenmakers, Love, Marsman, Jamil, Ly
+  et~al.]{wagenmakers2018bayesian2}
+Wagenmakers EJ, Love J, Marsman M, Jamil T, Ly A, et~al. 2018.
+Bayesian inference for psychology. {Part II: E}xample applications with {JASP}.
+\textit{Psychonomic bulletin \& review} 25:58--76
+
+\bibitem[Wasserstein \& Lazar(2016)]{pvals}
+Wasserstein RL, Lazar NA. 2016.
+{The ASA's Statement on p-Values: Context, Process, and Purpose}.
+\textit{The American Statistician} 70:129--133
+
+\bibitem[Wilke(2019)]{wilke}
+Wilke C. 2019.
+Fundamentals of data visualization.
+O'Reilly
+
+\end{thebibliography}
