@@ -1,11 +1,6 @@
 \begin{thebibliography}{}
 \expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
 
-\bibitem[Avetisyan et~al.(2020)Avetisyan, Lago \& Vasishth]{ALV2019}
-Avetisyan S, Lago S, Vasishth S. 2020.
-Does case marking affect agreement attraction in comprehension?
-\textit{Journal of Memory and Language} 112
-
 \bibitem[Baayen et~al.(2008)Baayen, Davidson \& Bates]{baayen2008mixed}
 Baayen RH, Davidson DJ, Bates DM. 2008.
 Mixed-effects modeling with crossed random effects for subjects and items.
@@ -21,6 +16,12 @@ Berman M, Jonides J, Lewis RL. 2009.
 {In search of decay in verbal short-term memory.}
 \textit{Journal of Experimental Psychology: Learning, Memory, and Cognition}
   35:317
+
+\bibitem[B{\"u}rki et~al.(2022)B{\"u}rki, Alario \& Vasishth]{Buerki2022}
+B{\"u}rki A, Alario FX, Vasishth S. 2022.
+When words collide: {B}ayesian meta-analyses of distractor and target
+  properties in the picture-word interference paradigm.
+\textit{Quarterly Journal of Experimental Psychology} Accepted
 
 \bibitem[B{\"u}rki et~al.(2020)B{\"u}rki, Elbuy, Madec \&
   Vasishth]{BuerkiEtAl2020}
@@ -66,7 +67,7 @@ Hillsdale, NJ: Lawrence Erlbaum, 2nd ed.
 \bibitem[Cox et~al.(2022)Cox, Keren-Portnoy, Roepstorff \&
   Fusaroli]{cox2022bayesian}
 Cox CMM, Keren-Portnoy T, Roepstorff A, Fusaroli R. 2022.
-A {B}ayesian meta-analysis of infants’ ability to perceive audio--visual
+A {B}ayesian meta-analysis of infants’ ability to perceive audio-visual
   congruence for speech.
 \textit{Infancy} 27:67--96
 
@@ -203,18 +204,6 @@ Lee MD, Wagenmakers EJ. 2014.
 {B}ayesian cognitive modeling: {A} practical course.
 Cambridge University Press
 
-\bibitem[Levy \& Keller(2013)]{levy2013expectation}
-Levy RP, Keller F. 2013.
-Expectation and locality effects in {G}erman verb-final structures.
-\textit{Journal of Memory and Language} 68:199--222
-
-\bibitem[Liss{\'o}n et~al.(2021)Liss{\'o}n, Pregla, Nicenboim, Paape, van~het
-  Nederend et~al.]{LissonEtAl2021}
-Liss{\'o}n P, Pregla D, Nicenboim B, Paape D, van~het Nederend M, et~al. 2021.
-A computational evaluation of two models of retrieval processes in sentence
-  processing in aphasia.
-\textit{Cognitive Science} 45
-
 \bibitem[Logacev \& Bozkurt(2021)]{logacev2021statistical}
 Logacev P, Bozkurt M{\.I}. 2021.
 Statistical power in response signal paradigm experiments, In
@@ -239,9 +228,9 @@ Using meta-analysis for evidence synthesis: {The case of incomplete
   neutralization in German}.
 \textit{Journal of Phonetics} 70:39--55
 
-\bibitem[Nicenboim et~al.(2021)Nicenboim, Schad \&
+\bibitem[Nicenboim et~al.(2022)Nicenboim, Schad \&
   Vasishth]{NicenboimEtAlBayes2019}
-Nicenboim B, Schad DJ, Vasishth S. 2021.
+Nicenboim B, Schad DJ, Vasishth S. 2022.
 Introduction to {B}ayesian data analysis for cognitive science.
 Under contract with Chapman and Hall/CRC Statistics in the Social and
   Behavioral Sciences Series
@@ -326,11 +315,6 @@ Bayesian approaches to randomized trials.
 {RStan}: the {R} interface to {Stan}.
 R package version 2.14.1
 
-\bibitem[{Van~Dyke} \& McElree(2006)]{vandykemcelree06}
-{Van~Dyke} J, McElree B. 2006.
-Retrieval interference in sentence comprehension.
-\textit{Journal of Memory and Language} 55:157--166
-
 \bibitem[Vasishth et~al.(2013)Vasishth, Chen, Li \&
   Guo]{VasishthetalPLoSOne2013}
 Vasishth S, Chen Z, Li Q, Guo G. 2013.
@@ -357,27 +341,14 @@ How to embrace variation and accept uncertainty in linguistic and
   psycholinguistic data analysis.
 \textit{Linguistics} 59:1311--1342
 
-\bibitem[Vasishth \& Lewis(2006)]{vasishthlewisLanguage05}
-Vasishth S, Lewis RL. 2006.
-Argument-head distance and processing complexity: {E}xplaining both locality
-  and antilocality effects.
-\textit{Language} 82:767--794
-
-\bibitem[Vasishth et~al.(2018{\natexlab{a}})Vasishth, Mertzen, J{\"a}ger \&
-  Gelman]{VasishthMertzenJaegerGelman2018}
-Vasishth S, Mertzen D, J{\"a}ger LA, Gelman A. 2018{\natexlab{a}}.
-The statistical significance filter leads to overoptimistic expectations of
-  replicability.
-\textit{Journal of Memory and Language} 103:151--175
-
 \bibitem[Vasishth \& Nicenboim(2016)]{VasishthNicenboimStatMeth}
 Vasishth S, Nicenboim B. 2016.
 Statistical methods for linguistic research: {F}oundational ideas – {Part I}.
 \textit{Language and Linguistics Compass} 10:349--369
 
-\bibitem[Vasishth et~al.(2018{\natexlab{b}})Vasishth, Nicenboim, Beckman, Li \&
+\bibitem[Vasishth et~al.(2018)Vasishth, Nicenboim, Beckman, Li \&
   Kong]{VasishthBeckmanetal}
-Vasishth S, Nicenboim B, Beckman ME, Li F, Kong EJ. 2018{\natexlab{b}}.
+Vasishth S, Nicenboim B, Beckman ME, Li F, Kong EJ. 2018.
 Bayesian data analysis in the phonetic sciences: {A} tutorial introduction.
 \textit{Journal of Phonetics} 71:141--161
 
@@ -393,7 +364,8 @@ Under contract with Chapman and Hall/CRC Statistics in the Social and
   Nicenboim]{vasishth2021sample}
 Vasishth S, Yadav H, Schad D, Nicenboim B. 2022{\natexlab{b}}.
 Sample size determination for {B}ayesian hierarchical models commonly used in
-  psycholinguistics
+  psycholinguistics.
+\textit{Computational Brain and Behavior}
 
 \bibitem[Wagenmakers et~al.(2018)Wagenmakers, Love, Marsman, Jamil, Ly
   et~al.]{wagenmakers2018bayesian2}
